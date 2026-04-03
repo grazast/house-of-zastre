@@ -382,52 +382,23 @@
 <!-- LOADER -->
 <div id="loader">
   <svg viewBox="0 0 200 200" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
-    <!-- Background square -->
+    <style>
+      @keyframes draw-border { to { stroke-dashoffset: 0; } }
+      @keyframes draw-line   { to { stroke-dashoffset: 0; } }
+
+      #z-border  { stroke-dasharray: 720; stroke-dashoffset: 720; animation: draw-border 0.9s cubic-bezier(0.42,0,0.58,1) 0.1s forwards; }
+      #z-top     { stroke-dasharray: 108; stroke-dashoffset: 108; animation: draw-line 0.4s cubic-bezier(0.42,0,0.58,1) 1.0s forwards; }
+      #z-diag    { stroke-dasharray: 148; stroke-dashoffset: 148; animation: draw-line 0.6s cubic-bezier(0.42,0,0.58,1) 1.4s forwards; }
+      #z-bottom  { stroke-dasharray: 108; stroke-dashoffset: 108; animation: draw-line 0.4s cubic-bezier(0.42,0,0.58,1) 2.0s forwards; }
+      #z-cross   { stroke-dasharray: 51;  stroke-dashoffset: 51;  animation: draw-line 0.25s linear 2.4s forwards; }
+    </style>
+
     <rect width="200" height="200" fill="#404040"/>
-
-    <!-- Border draws around -->
-    <rect x="10" y="10" width="180" height="180"
-          fill="none" stroke="#f8f7f4" stroke-width="7"
-          stroke-dasharray="720" stroke-dashoffset="720">
-      <animate attributeName="stroke-dashoffset"
-               from="720" to="0" dur="0.9s" begin="0.1s" fill="freeze"
-               calcMode="spline" keySplines="0.42 0 0.58 1"/>
-    </rect>
-
-    <!-- Top bar: left to right -->
-    <line x1="46" y1="57" x2="154" y2="57"
-          stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"
-          stroke-dasharray="108" stroke-dashoffset="108">
-      <animate attributeName="stroke-dashoffset"
-               from="108" to="0" dur="0.4s" begin="1.0s" fill="freeze"
-               calcMode="spline" keySplines="0.42 0 0.58 1"/>
-    </line>
-
-    <!-- Diagonal: top-right to bottom-left -->
-    <line x1="154" y1="61" x2="46" y2="141"
-          stroke="#f8f7f4" stroke-width="15" stroke-linecap="round"
-          stroke-dasharray="148" stroke-dashoffset="148">
-      <animate attributeName="stroke-dashoffset"
-               from="148" to="0" dur="0.6s" begin="1.4s" fill="freeze"
-               calcMode="spline" keySplines="0.42 0 0.58 1"/>
-    </line>
-
-    <!-- Bottom bar: left to right -->
-    <line x1="46" y1="145" x2="154" y2="145"
-          stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"
-          stroke-dasharray="108" stroke-dashoffset="108">
-      <animate attributeName="stroke-dashoffset"
-               from="108" to="0" dur="0.4s" begin="2.0s" fill="freeze"
-               calcMode="spline" keySplines="0.42 0 0.58 1"/>
-    </line>
-
-    <!-- Crossbar: draws last after Z is complete -->
-    <line x1="74.5" y1="101" x2="125.5" y2="101"
-          stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"
-          stroke-dasharray="51" stroke-dashoffset="51">
-      <animate attributeName="stroke-dashoffset"
-               from="51" to="0" dur="0.25s" begin="2.4s" fill="freeze"/>
-    </line>
+    <rect id="z-border" x="10" y="10" width="180" height="180" fill="none" stroke="#f8f7f4" stroke-width="7"/>
+    <line id="z-top"    x1="46"   y1="57"  x2="154"   y2="57"  stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"/>
+    <line id="z-diag"   x1="154"  y1="61"  x2="46"    y2="141" stroke="#f8f7f4" stroke-width="15" stroke-linecap="round"/>
+    <line id="z-bottom" x1="46"   y1="145" x2="154"   y2="145" stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"/>
+    <line id="z-cross"  x1="74.5" y1="101" x2="125.5" y2="101" stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"/>
   </svg>
 </div>
 
