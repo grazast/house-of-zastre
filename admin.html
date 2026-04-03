@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House of Zastre — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #404040;
+    --secondary: #6b6b6b;
+    --accent: #dbc278;
+    --bg: #f8f7f4;
+    --font: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--bg); color: var(--primary); }
+
+  /* ─── LOGIN WALL ─── */
+  #loginWall {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .login-mark {
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--secondary);
+  }
+
+  .login-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 320px;
+  }
+
+  .login-box input {
+    width: 100%;
+    padding: 14px 0;
+    border: none;
+    border-bottom: 1px solid #d4d0c8;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--primary);
+    outline: none;
+    text-align: center;
+    letter-spacing: 4px;
+    transition: border-color 0.3s;
+  }
+
+  .login-box input:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  .login-box input::placeholder {
+    color: #b5b0a5;
+    letter-spacing: 2px;
+    font-size: 13px;
+  }
+
+  .login-box button {
+    padding: 12px 36px;
+    border: 1px solid var(--primary);
+    background: transparent;
+    font-family: var(--font);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .login-box button:hover {
+    background: var(--primary);
+    color: var(--bg);
+  }
+
+  .login-error {
+    font-size: 13px;
+    color: #c45;
+    display: none;
+  }
+
+  /* ─── ADMIN DASHBOARD ─── */
+  #dashboard {
+    display: none;
+    min-height: 100vh;
+  }
+
+  .admin-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid #e8e4dc;
+  }
+
+  .admin-nav .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .admin-nav .nav-brand {
+    font-size: 13px;
+    letter-spacing: 2px;
+    font-weight: 500;
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .admin-nav .nav-tabs {
+    display: flex;
+    gap: 24px;
+  }
+
+  .admin-nav .nav-tab {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--secondary);
+    cursor: pointer;
+    padding: 4px 0;
+    border-bottom: 1.5px solid transparent;
+    transition: all 0.3s;
+  }
+
+  .admin-nav .nav-tab:hover,
+  .admin-nav .nav-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--accent);
+  }
+
+  .admin-nav .nav-logout {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--secondary);
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .admin-nav .nav-logout:hover {
+    color: var(--primary);
+  }
+
+  .admin-content {
+    padding: 48px;
+    max-width: 960px;
+  }
+
+  .admin-content h2 {
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 8px;
+  }
+
+  .admin-content .section-desc {
+    font-size: 14px;
+    color: var(--secondary);
+    font-weight: 300;
+    margin-bottom: 32px;
+  }
+
+  /* ─── INQUIRY CARDS ─── */
+  .inquiry-card {
+    border: 1px solid #e8e4dc;
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .inquiry-card:hover {
+    border-color: var(--accent);
+  }
+
+  .inquiry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .inquiry-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .inquiry-date {
+    font-size: 12px;
+    color: var(--secondary);
+    letter-spacing: 1px;
+  }
+
+  .inquiry-email {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .inquiry-subject {
+    font-size: 13px;
+    color: var(--secondary);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .inquiry-message {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--secondary);
+    font-weight: 300;
+  }
+
+  .inquiry-delete {
+    font-size: 11px;
+    color: #b5b0a5;
+    cursor: pointer;
+    margin-top: 12px;
+    display: inline-block;
+    transition: color 0.3s;
+  }
+
+  .inquiry-delete:hover {
+    color: #c45;
+  }
+
+  .empty-state {
+    padding: 60px;
+    text-align: center;
+    color: var(--secondary);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    border: 1px dashed #d4d0c8;
+  }
+
+  /* ─── PROJECTS ─── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .project-card {
+    border: 1px solid #e8e4dc;
+    padding: 24px;
+    transition: border-color 0.3s;
+  }
+
+  .project-card:hover {
+    border-color: var(--accent);
+  }
+
+  .project-name {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .project-author {
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .project-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--secondary);
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+
+  .project-link {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--primary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 2px;
+    transition: color 0.3s;
+  }
+
+  .project-link:hover {
+    color: var(--accent);
+  }
+
+  .project-delete {
+    font-size: 11px;
+    color: #b5b0a5;
+    cursor: pointer;
+    margin-top: 12px;
+    display: inline-block;
+    transition: color 0.3s;
+    float: right;
+  }
+
+  .project-delete:hover {
+    color: #c45;
+  }
+
+  /* ─── ADD PROJECT FORM ─── */
+  .add-project-btn {
+    padding: 12px 32px;
+    border: 1px solid var(--primary);
+    background: transparent;
+    font-family: var(--font);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 32px;
+  }
+
+  .add-project-btn:hover {
+    background: var(--primary);
+    color: var(--bg);
+  }
+
+  .project-form {
+    display: none;
+    border: 1px solid #e8e4dc;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+
+  .project-form input,
+  .project-form textarea {
+    width: 100%;
+    padding: 12px 0;
+    border: none;
+    border-bottom: 1px solid #d4d0c8;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--primary);
+    outline: none;
+    margin-bottom: 16px;
+    resize: none;
+    transition: border-color 0.3s;
+  }
+
+  .project-form input:focus,
+  .project-form textarea:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  .project-form input::placeholder,
+  .project-form textarea::placeholder {
+    color: #b5b0a5;
+  }
+
+  .project-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .project-form-actions button {
+    padding: 10px 28px;
+    border: 1px solid var(--primary);
+    background: transparent;
+    font-family: var(--font);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .project-form-actions button:hover {
+    background: var(--primary);
+    color: var(--bg);
+  }
+
+  .project-form-actions .cancel-btn {
+    border-color: #d4d0c8;
+    color: var(--secondary);
+  }
+
+  .project-form-actions .cancel-btn:hover {
+    background: #e8e4dc;
+    color: var(--primary);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .admin-nav { padding: 16px 24px; flex-wrap: wrap; gap: 12px; }
+    .admin-content { padding: 24px; }
+    .projects-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN WALL -->
+<div id="loginWall">
+  <p class="login-mark">House of Zastre — Admin</p>
+  <div class="login-box">
+    <input type="password" id="passwordInput" placeholder="Password" onkeydown="if(event.key==='Enter')attemptLogin()">
+    <button onclick="attemptLogin()">Enter</button>
+    <p class="login-error" id="loginError">Incorrect password.</p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <nav class="admin-nav">
+    <div class="nav-left">
+      <a href="/" class="nav-brand">House of Zastre</a>
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('inquiries')">Inquiries</div>
+        <div class="nav-tab" onclick="switchTab('projects')">Projects</div>
+      </div>
+    </div>
+    <div class="nav-logout" onclick="logout()">Logout</div>
+  </nav>
+
+  <!-- INQUIRIES TAB -->
+  <div class="admin-content" id="tab-inquiries">
+    <h2>Inquiries</h2>
+    <p class="section-desc">Submissions from the public site.</p>
+    <div id="inquiriesList"></div>
+  </div>
+
+  <!-- PROJECTS TAB -->
+  <div class="admin-content" id="tab-projects" style="display:none;">
+    <h2>Projects</h2>
+    <p class="section-desc">Family projects and uploads.</p>
+    <button class="add-project-btn" onclick="toggleProjectForm()">+ Add Project</button>
+    <div class="project-form" id="projectForm">
+      <input type="text" id="projName" placeholder="Project name">
+      <input type="text" id="projAuthor" placeholder="Author">
+      <textarea id="projDesc" rows="3" placeholder="Description"></textarea>
+      <input type="text" id="projLink" placeholder="Link (optional)">
+      <div class="project-form-actions">
+        <button onclick="saveProject()">Save</button>
+        <button class="cancel-btn" onclick="toggleProjectForm()">Cancel</button>
+      </div>
+    </div>
+    <div class="projects-grid" id="projectsList"></div>
+  </div>
+</div>
+
+<script>
+  // ─── AUTH ───
+  // CHANGE THIS — for production, use Cloudflare Workers + hashed password
+  const ADMIN_PASSWORD = 'zastre2026';
+
+  function attemptLogin() {
+    const pw = document.getElementById('passwordInput').value;
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem('hoz_auth', 'true');
+      showDashboard();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('hoz_auth');
+    location.reload();
+  }
+
+  function showDashboard() {
+    document.getElementById('loginWall').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    renderInquiries();
+    renderProjects();
+  }
+
+  // Auto-login if session valid
+  if (sessionStorage.getItem('hoz_auth') === 'true') {
+    showDashboard();
+  }
+
+  // ─── TABS ───
+  function switchTab(tab) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-inquiries').style.display = tab === 'inquiries' ? 'block' : 'none';
+    document.getElementById('tab-projects').style.display = tab === 'projects' ? 'block' : 'none';
+  }
+
+  // ─── INQUIRIES ───
+  function renderInquiries() {
+    const list = document.getElementById('inquiriesList');
+    const inquiries = JSON.parse(localStorage.getItem('hoz_inquiries') || '[]').reverse();
+
+    if (inquiries.length === 0) {
+      list.innerHTML = '<div class="empty-state">No inquiries yet.</div>';
+      return;
+    }
+
+    list.innerHTML = inquiries.map(inq => `
+      <div class="inquiry-card">
+        <div class="inquiry-header">
+          <span class="inquiry-name">${esc(inq.name)}</span>
+          <span class="inquiry-date">${new Date(inq.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+        </div>
+        <div class="inquiry-email">${esc(inq.email)}</div>
+        ${inq.subject ? `<div class="inquiry-subject">${esc(inq.subject)}</div>` : ''}
+        <div class="inquiry-message">${esc(inq.message)}</div>
+        <span class="inquiry-delete" onclick="deleteInquiry(${inq.id})">Delete</span>
+      </div>
+    `).join('');
+  }
+
+  function deleteInquiry(id) {
+    let inquiries = JSON.parse(localStorage.getItem('hoz_inquiries') || '[]');
+    inquiries = inquiries.filter(i => i.id !== id);
+    localStorage.setItem('hoz_inquiries', JSON.stringify(inquiries));
+    renderInquiries();
+  }
+
+  // ─── PROJECTS ───
+  function toggleProjectForm() {
+    const form = document.getElementById('projectForm');
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function saveProject() {
+    const project = {
+      id: Date.now(),
+      name: document.getElementById('projName').value,
+      author: document.getElementById('projAuthor').value,
+      desc: document.getElementById('projDesc').value,
+      link: document.getElementById('projLink').value,
+      date: new Date().toISOString()
+    };
+
+    if (!project.name) return;
+
+    const projects = JSON.parse(localStorage.getItem('hoz_projects') || '[]');
+    projects.push(project);
+    localStorage.setItem('hoz_projects', JSON.stringify(projects));
+
+    // Clear form
+    ['projName','projAuthor','projDesc','projLink'].forEach(id => document.getElementById(id).value = '');
+    toggleProjectForm();
+    renderProjects();
+  }
+
+  function deleteProject(id) {
+    let projects = JSON.parse(localStorage.getItem('hoz_projects') || '[]');
+    projects = projects.filter(p => p.id !== id);
+    localStorage.setItem('hoz_projects', JSON.stringify(projects));
+    renderProjects();
+  }
+
+  function renderProjects() {
+    const grid = document.getElementById('projectsList');
+    const projects = JSON.parse(localStorage.getItem('hoz_projects') || '[]').reverse();
+
+    if (projects.length === 0) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No projects yet. Add one above.</div>';
+      return;
+    }
+
+    grid.innerHTML = projects.map(p => `
+      <div class="project-card">
+        <div class="project-name">${esc(p.name)}</div>
+        <div class="project-author">${esc(p.author)}</div>
+        <div class="project-desc">${esc(p.desc)}</div>
+        ${p.link ? `<a class="project-link" href="${esc(p.link)}" target="_blank">View Project →</a>` : ''}
+        <span class="project-delete" onclick="deleteProject(${p.id})">Delete</span>
+      </div>
+    `).join('');
+  }
+
+  // ─── UTILS ───
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+</script>
+</body>
+</html>

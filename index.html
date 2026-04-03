@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House of Zastre</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #404040;
+    --secondary: #6b6b6b;
+    --accent: #dbc278;
+    --bg: #f8f7f4;
+    --font: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--bg);
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--primary);
+    overflow-x: hidden;
+  }
+
+  /* ─── LOADER ─── */
+  #loader {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: loaderFade 3s ease-in-out forwards;
+  }
+
+  #loader img {
+    width: 120px;
+    height: 120px;
+    animation: logoFade 3s ease-in-out forwards;
+  }
+
+  @keyframes logoFade {
+    0% { opacity: 0; transform: scale(0.9); }
+    30% { opacity: 1; transform: scale(1); }
+    70% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.02); }
+  }
+
+  @keyframes loaderFade {
+    0% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; pointer-events: none; }
+  }
+
+  /* ─── HERO SECTION ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    opacity: 0;
+    animation: pageReveal 1s ease-out 3s forwards;
+  }
+
+  @keyframes pageReveal {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .hero-left {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+    background: var(--primary);
+  }
+
+  .hero-left video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+  }
+
+  .hero-left .video-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Diagonal accent line overlay on video */
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(
+      135deg,
+      transparent 48%,
+      rgba(219, 194, 120, 0.12) 48%,
+      rgba(219, 194, 120, 0.12) 52%,
+      transparent 52%
+    );
+    pointer-events: none;
+  }
+
+  .hero-right {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px;
+    position: relative;
+  }
+
+  .hero-right h1 {
+    font-size: 52px;
+    font-weight: 300;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: var(--primary);
+    margin-bottom: 24px;
+  }
+
+  .hero-right h1 span {
+    display: block;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .hero-right .tagline {
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--secondary);
+    margin-bottom: 48px;
+  }
+
+  .hero-right .scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    left: 80px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--secondary);
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .hero-right .scroll-indicator:hover {
+    color: var(--accent);
+  }
+
+  .scroll-indicator .arrow {
+    width: 24px;
+    height: 24px;
+    border-right: 1.5px solid var(--secondary);
+    border-bottom: 1.5px solid var(--secondary);
+    transform: rotate(45deg);
+    animation: bounceDown 2s ease-in-out infinite;
+  }
+
+  @keyframes bounceDown {
+    0%, 100% { transform: rotate(45deg) translateY(0); }
+    50% { transform: rotate(45deg) translateY(4px); }
+  }
+
+  /* ─── ABOUT SECTION ─── */
+  #about {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 120px 80px;
+    opacity: 0;
+    animation: pageReveal 1s ease-out 3s forwards;
+  }
+
+  .about-label {
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+  }
+
+  #about h2 {
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--primary);
+    text-align: center;
+    line-height: 1.2;
+    max-width: 700px;
+  }
+
+  #about h2 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  .divider {
+    width: 60px;
+    height: 1.5px;
+    background: var(--accent);
+    margin: 48px 0;
+  }
+
+  .about-body {
+    max-width: 560px;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--secondary);
+    font-weight: 300;
+  }
+
+  /* ─── INQUIRY SECTION ─── */
+  #inquiry {
+    padding: 120px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    animation: pageReveal 1s ease-out 3s forwards;
+  }
+
+  #inquiry h3 {
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 48px;
+  }
+
+  .inquiry-form {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .inquiry-form input,
+  .inquiry-form textarea {
+    width: 100%;
+    padding: 16px 0;
+    border: none;
+    border-bottom: 1px solid #d4d0c8;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--primary);
+    outline: none;
+    transition: border-color 0.3s;
+    resize: none;
+  }
+
+  .inquiry-form input::placeholder,
+  .inquiry-form textarea::placeholder {
+    color: #b5b0a5;
+    letter-spacing: 1px;
+  }
+
+  .inquiry-form input:focus,
+  .inquiry-form textarea:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  .inquiry-form button {
+    align-self: flex-start;
+    padding: 14px 40px;
+    border: 1px solid var(--primary);
+    background: transparent;
+    font-family: var(--font);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 16px;
+  }
+
+  .inquiry-form button:hover {
+    background: var(--primary);
+    color: var(--bg);
+  }
+
+  .form-success {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    font-size: 15px;
+    color: var(--secondary);
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 40px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #e8e4dc;
+    opacity: 0;
+    animation: pageReveal 1s ease-out 3s forwards;
+  }
+
+  footer .footer-mark {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--secondary);
+    font-weight: 300;
+  }
+
+  footer .footer-links {
+    display: flex;
+    gap: 32px;
+  }
+
+  footer .footer-links a {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--secondary);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  footer .footer-links a:hover {
+    color: var(--accent);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    #hero {
+      flex-direction: column;
+    }
+    .hero-left, .hero-right {
+      width: 100%;
+    }
+    .hero-left {
+      height: 50vh;
+    }
+    .hero-right {
+      padding: 48px 32px;
+    }
+    .hero-right h1 {
+      font-size: 36px;
+    }
+    .hero-right .scroll-indicator {
+      left: 32px;
+      bottom: 24px;
+    }
+    #about {
+      padding: 80px 32px;
+    }
+    #about h2 {
+      font-size: 32px;
+    }
+    #inquiry {
+      padding: 80px 32px;
+    }
+    footer {
+      padding: 32px;
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <img src="logo.png" alt="Z">
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <video autoplay muted loop playsinline src="hero-video.mp4"></video>
+  </div>
+  <div class="hero-right">
+    <h1>House of<br><span>Zastre.</span></h1>
+    <p class="tagline">West coast family office</p>
+    <div class="scroll-indicator" onclick="document.getElementById('about').scrollIntoView()">
+      <span>Explore</span>
+      <div class="arrow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="about-label">About</p>
+  <h2>Built on prairie roots.<br>Grounded on the <em>west coast</em>.</h2>
+  <div class="divider"></div>
+  <p class="about-body">
+    House of Zastre is a family office and project hub based in Vancouver, British Columbia. 
+    We build, invest, and create across real estate, capital advisory, and technology.
+  </p>
+</section>
+
+<!-- INQUIRY -->
+<section id="inquiry">
+  <h3>Submit an inquiry</h3>
+  <form class="inquiry-form" id="inquiryForm">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="subject" placeholder="Subject">
+    <textarea name="message" rows="4" placeholder="Message" required></textarea>
+    <button type="submit">Send Inquiry</button>
+  </form>
+  <div class="form-success" id="formSuccess">
+    Thank you. We'll be in touch.
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-mark">&copy; 2026 House of Zastre</div>
+  <div class="footer-links">
+    <a href="mailto:hello@houseofzastre.com">Contact</a>
+    <a href="/admin.html">Admin</a>
+  </div>
+</footer>
+
+<script>
+  // Remove loader after animation
+  setTimeout(() => {
+    document.getElementById('loader').style.display = 'none';
+  }, 3200);
+
+  // Form submission — stores to localStorage for now
+  // Replace with Cloudflare Workers function for production
+  document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const inquiry = {
+      id: Date.now(),
+      name: formData.get('name'),
+      email: formData.get('email'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+      date: new Date().toISOString()
+    };
+
+    // Store locally (swap this for an API call later)
+    const inquiries = JSON.parse(localStorage.getItem('hoz_inquiries') || '[]');
+    inquiries.push(inquiry);
+    localStorage.setItem('hoz_inquiries', JSON.stringify(inquiries));
+
+    this.style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+  });
+
+  // Scroll-triggered fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('#about, #inquiry').forEach(el => {
+    el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    el.style.transform = 'translateY(24px)';
+  });
+</script>
+</body>
+</html>
