@@ -17,16 +17,22 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html {
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent) var(--bg);
+    overflow: hidden;
   }
 
   body {
     font-family: var(--font);
     background: var(--bg);
     color: var(--primary);
+    overflow-y: scroll;
     overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    height: 100vh;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
   }
 
   /* ─── LOADER ─── */
@@ -61,9 +67,13 @@
     100% { opacity: 0; pointer-events: none; }
   }
 
-  /* ─── HERO SECTION ─── */
+  /* ─── SECTIONS ─── */
+  section {
+    height: 100vh;
+  }
+
+  /* ─── HERO ─── */
   #hero {
-    min-height: 100vh;
     display: flex;
     opacity: 0;
     animation: pageReveal 1s ease-out 3s forwards;
@@ -76,11 +86,10 @@
 
   .hero-left {
     width: 50%;
-    height: 100vh;
+    height: 100%;
     position: relative;
     overflow: hidden;
     background: var(--primary);
-    flex-shrink: 0;
   }
 
   .hero-left video {
@@ -92,26 +101,15 @@
     opacity: 0.85;
   }
 
-  .hero-left .video-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--secondary);
-    font-size: 14px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-
   .hero-right {
     width: 50%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
     padding: 80px;
+    background: var(--primary);
     position: relative;
   }
 
@@ -120,7 +118,7 @@
     font-weight: 300;
     letter-spacing: -1px;
     line-height: 1.1;
-    color: var(--primary);
+    color: #f8f7f4;
     margin-bottom: 24px;
   }
 
@@ -134,53 +132,46 @@
     font-size: 14px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: var(--secondary);
-    margin-bottom: 48px;
+    color: #a0a0a0;
   }
 
-  .hero-right .scroll-indicator {
+  .scroll-arrow {
     position: absolute;
     bottom: 40px;
     left: 80px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--secondary);
-    cursor: pointer;
-    transition: color 0.3s;
-  }
-
-  .hero-right .scroll-indicator:hover {
-    color: var(--accent);
-  }
-
-  .scroll-indicator .arrow {
-    width: 24px;
-    height: 24px;
-    border-right: 1.5px solid var(--secondary);
-    border-bottom: 1.5px solid var(--secondary);
+    width: 20px;
+    height: 20px;
+    border-right: 1.5px solid rgba(255,255,255,0.5);
+    border-bottom: 1.5px solid rgba(255,255,255,0.5);
     transform: rotate(45deg);
     animation: bounceDown 2s ease-in-out infinite;
+    cursor: pointer;
   }
 
   @keyframes bounceDown {
     0%, 100% { transform: rotate(45deg) translateY(0); }
-    50% { transform: rotate(45deg) translateY(4px); }
+    50% { transform: rotate(45deg) translateY(6px); }
   }
 
-  /* ─── ABOUT SECTION ─── */
+  /* ─── SCROLL FADE-IN ─── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── ABOUT ─── */
   #about {
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     padding: 120px 80px;
-    opacity: 0;
-    animation: pageReveal 1s ease-out 3s forwards;
   }
 
   .about-label {
@@ -222,14 +213,13 @@
     font-weight: 300;
   }
 
-  /* ─── INQUIRY SECTION ─── */
+  /* ─── INQUIRY ─── */
   #inquiry {
-    padding: 120px 80px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    opacity: 0;
-    animation: pageReveal 1s ease-out 3s forwards;
+    justify-content: center;
+    padding: 80px;
   }
 
   #inquiry h3 {
@@ -307,13 +297,13 @@
 
   /* ─── FOOTER ─── */
   footer {
+    height: auto;
+    scroll-snap-align: none;
     padding: 40px 80px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid #e8e4dc;
-    opacity: 0;
-    animation: pageReveal 1s ease-out 3s forwards;
   }
 
   footer .footer-mark {
@@ -341,45 +331,40 @@
     color: var(--accent);
   }
 
+  /* ─── ADMIN LINK ─── */
+  .admin-link {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c0bbb4;
+    text-decoration: none;
+    z-index: 100;
+    transition: color 0.3s;
+  }
+
+  .admin-link:hover {
+    color: var(--accent);
+  }
+
   /* ─── RESPONSIVE ─── */
   @media (max-width: 768px) {
-    #hero {
-      flex-direction: column;
-    }
-    .hero-left, .hero-right {
-      width: 100%;
-    }
-    .hero-left {
-      height: 50vh;
-    }
-    .hero-right {
-      padding: 48px 32px;
-    }
-    .hero-right h1 {
-      font-size: 36px;
-    }
-    .hero-right .scroll-indicator {
-      left: 32px;
-      bottom: 24px;
-    }
-    #about {
-      padding: 80px 32px;
-    }
-    #about h2 {
-      font-size: 32px;
-    }
-    #inquiry {
-      padding: 80px 32px;
-    }
-    footer {
-      padding: 32px;
-      flex-direction: column;
-      gap: 16px;
-    }
+    #hero { flex-direction: column; }
+    .hero-left { width: 100%; height: 50%; }
+    .hero-right { width: 100%; height: 50%; padding: 48px 32px; }
+    .hero-right h1 { font-size: 36px; }
+    #about { padding: 80px 32px; }
+    #about h2 { font-size: 32px; }
+    #inquiry { padding: 80px 32px; }
+    footer { padding: 32px; flex-direction: column; gap: 16px; }
   }
 </style>
 </head>
 <body>
+
+<a href="/admin.html" class="admin-link">Admin</a>
 
 <!-- LOADER -->
 <div id="loader">
@@ -394,26 +379,23 @@
   <div class="hero-right">
     <h1>House of<br><span>Zastre.</span></h1>
     <p class="tagline">West coast family office</p>
-    <div class="scroll-indicator" onclick="document.getElementById('about').scrollIntoView()">
-      <div class="arrow"></div>
-    </div>
+    <div class="scroll-arrow" onclick="scrollToSection(1)"></div>
   </div>
 </section>
 
 <!-- ABOUT -->
 <section id="about">
-  <p class="about-label">About</p>
-  <h2>Built on prairie roots.<br>Grounded on the <em>west coast</em>.</h2>
-  <div class="divider"></div>
-  <p class="about-body">
-    House of Zastre is a family office and project hub based in Vancouver, British Columbia. 
-    We build, invest, and create across real estate, capital advisory, and technology.
+  <p class="about-label fade-in">About</p>
+  <h2 class="fade-in">Built on prairie roots.<br>Grounded on the <em>west coast</em>.</h2>
+  <div class="divider fade-in"></div>
+  <p class="about-body fade-in">
+    HoZ is based out of Vancouver, Canada. Building, investing, and creating across real estate, capital advisory, and technology.
   </p>
 </section>
 
 <!-- INQUIRY -->
 <section id="inquiry">
-  <h3>Submit an inquiry</h3>
+  <h3 class="fade-in">Submit an inquiry</h3>
   <form class="inquiry-form" id="inquiryForm">
     <input type="text" name="name" placeholder="Name" required>
     <input type="email" name="email" placeholder="Email" required>
@@ -436,10 +418,73 @@
 </footer>
 
 <script>
-  // Slow video to 30-second loop
+  // Always start at top on load
+  document.body.scrollTop = 0;
+
+  // Controlled page snapping
+  const sections = Array.from(document.querySelectorAll('section'));
+  let current = 0;
+  let animating = false;
+  const DURATION = 1200; // ms — increase to slow down more
+
+  function easeInOut(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  }
+
+  function scrollToSection(index) {
+    if (animating || index < 0 || index >= sections.length) return;
+    animating = true;
+    const start = document.body.scrollTop;
+    const end = sections[index].offsetTop;
+    const startTime = performance.now();
+
+    function animate(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / DURATION, 1);
+      document.body.scrollTop = start + (end - start) * easeInOut(progress);
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        current = index;
+        animating = false;
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  document.body.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (e.deltaY > 0) scrollToSection(current + 1);
+    else scrollToSection(current - 1);
+  }, { passive: false });
+
+  // Touch support
+  let touchStart = 0;
+  document.body.addEventListener('touchstart', (e) => { touchStart = e.touches[0].clientY; });
+  document.body.addEventListener('touchend', (e) => {
+    const delta = touchStart - e.changedTouches[0].clientY;
+    if (Math.abs(delta) > 50) {
+      if (delta > 0) scrollToSection(current + 1);
+      else scrollToSection(current - 1);
+    }
+  });
+
+  // Fade-in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 120);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Slow video to 60-second loop
   const heroVideo = document.querySelector('.hero-left video');
+  heroVideo.playbackRate = 0.25;
   heroVideo.addEventListener('loadedmetadata', () => {
-    heroVideo.playbackRate = heroVideo.duration / 30;
+    heroVideo.playbackRate = 0.25;
   });
 
   // Remove loader after animation
@@ -447,8 +492,7 @@
     document.getElementById('loader').style.display = 'none';
   }, 3200);
 
-  // Form submission — stores to localStorage for now
-  // Replace with Cloudflare Workers function for production
+  // Form submission
   document.getElementById('inquiryForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
@@ -460,29 +504,11 @@
       message: formData.get('message'),
       date: new Date().toISOString()
     };
-
-    // Store locally (swap this for an API call later)
     const inquiries = JSON.parse(localStorage.getItem('hoz_inquiries') || '[]');
     inquiries.push(inquiry);
     localStorage.setItem('hoz_inquiries', JSON.stringify(inquiries));
-
-    this.style.display = 'none';
+    this.style.visibility = 'hidden';
     document.getElementById('formSuccess').style.display = 'block';
-  });
-
-  // Scroll-triggered fade-in
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.15 });
-
-  document.querySelectorAll('#about, #inquiry').forEach(el => {
-    el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-    el.style.transform = 'translateY(24px)';
   });
 </script>
 </body>
