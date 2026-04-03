@@ -419,9 +419,10 @@
   <a href="/" style="position:absolute;top:32px;left:40px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#6b6b6b;text-decoration:none;transition:color 0.3s;" onmouseover="this.style.color='#dbc278'" onmouseout="this.style.color='#6b6b6b'">← Site</a>
   <p class="login-mark">House of Zastre — Admin</p>
   <div class="login-box">
+    <input type="email" id="emailInput" placeholder="Email" onkeydown="if(event.key==='Enter')attemptLogin()">
     <input type="password" id="passwordInput" placeholder="Password" onkeydown="if(event.key==='Enter')attemptLogin()">
     <button onclick="attemptLogin()">Enter</button>
-    <p class="login-error" id="loginError">Incorrect password.</p>
+    <p class="login-error" id="loginError">Incorrect email or password.</p>
   </div>
 </div>
 
@@ -432,7 +433,7 @@
       <a href="/" class="nav-brand">House of Zastre</a>
       <div class="nav-tabs">
         <div class="nav-tab active" onclick="switchTab('inquiries')">Inquiries</div>
-        <div class="nav-tab" onclick="switchTab('projects')">Projects</div>
+        <div class="nav-tab" onclick="switchTab('users')">Users</div>
       </div>
     </div>
     <div style="display:flex;gap:24px;align-items:center;">
@@ -448,42 +449,48 @@
     <div id="inquiriesList"></div>
   </div>
 
-  <!-- PROJECTS TAB -->
-  <div class="admin-content" id="tab-projects" style="display:none;">
-    <h2>Projects</h2>
-    <p class="section-desc">Family projects and uploads.</p>
-    <button class="add-project-btn" onclick="toggleProjectForm()">+ Add Project</button>
-    <div class="project-form" id="projectForm">
-      <input type="text" id="projName" placeholder="Project name">
-      <input type="text" id="projAuthor" placeholder="Author">
-      <textarea id="projDesc" rows="3" placeholder="Description"></textarea>
-      <input type="text" id="projLink" placeholder="Link (optional)">
+  <!-- USERS TAB -->
+  <div class="admin-content" id="tab-users" style="display:none;">
+    <h2>Admin Users</h2>
+    <p class="section-desc">Manage who has access to this dashboard.</p>
+    <button class="add-project-btn" onclick="toggleUserForm()">+ Add User</button>
+    <div class="project-form" id="userForm">
+      <input type="email" id="newUserEmail" placeholder="Email">
+      <input type="password" id="newUserPassword" placeholder="Password">
       <div class="project-form-actions">
-        <button onclick="saveProject()">Save</button>
-        <button class="cancel-btn" onclick="toggleProjectForm()">Cancel</button>
+        <button onclick="addUser()">Save</button>
+        <button class="cancel-btn" onclick="toggleUserForm()">Cancel</button>
       </div>
     </div>
-    <div class="projects-grid" id="projectsList"></div>
+    <div id="usersList"></div>
   </div>
 </div>
 
 <script>
-  // ─── AUTH ───
-  // CHANGE THIS — for production, use Cloudflare Workers + hashed password
-  const ADMIN_PASSWORD = 'HouseofZastre_12*';
+  const API = 'https://hoz-api.grahamzastre.workers.dev';
 
-  function attemptLogin() {
-    const pw = document.getElementById('passwordInput').value;
-    if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem('hoz_auth', 'true');
-      showDashboard();
-    } else {
+  function getToken() { return sessionStorage.getItem('hoz_token'); }
+
+  // ─── AUTH ───
+  async function attemptLogin() {
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passwordInput').value;
+    const res = await fetch(`${API}/api/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) {
       document.getElementById('loginError').style.display = 'block';
+      return;
     }
+    const { token } = await res.json();
+    sessionStorage.setItem('hoz_token', token);
+    showDashboard();
   }
 
   function logout() {
-    sessionStorage.removeItem('hoz_auth');
+    sessionStorage.removeItem('hoz_token');
     location.reload();
   }
 
@@ -491,32 +498,31 @@
     document.getElementById('loginWall').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     renderInquiries();
-    renderProjects();
   }
 
-  // Auto-login if session valid
-  if (sessionStorage.getItem('hoz_auth') === 'true') {
-    showDashboard();
-  }
+  if (getToken()) showDashboard();
 
   // ─── TABS ───
   function switchTab(tab) {
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
     document.getElementById('tab-inquiries').style.display = tab === 'inquiries' ? 'block' : 'none';
-    document.getElementById('tab-projects').style.display = tab === 'projects' ? 'block' : 'none';
+    document.getElementById('tab-users').style.display = tab === 'users' ? 'block' : 'none';
+    if (tab === 'users') renderUsers();
   }
 
   // ─── INQUIRIES ───
-  function renderInquiries() {
+  async function renderInquiries() {
     const list = document.getElementById('inquiriesList');
-    const inquiries = JSON.parse(localStorage.getItem('hoz_inquiries') || '[]').reverse();
-
-    if (inquiries.length === 0) {
+    list.innerHTML = '<div class="empty-state">Loading...</div>';
+    const res = await fetch(`${API}/api/admin/inquiries`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const inquiries = await res.json();
+    if (!inquiries.length) {
       list.innerHTML = '<div class="empty-state">No inquiries yet.</div>';
       return;
     }
-
     list.innerHTML = inquiries.map(inq => `
       <div class="inquiry-card">
         <div class="inquiry-header">
@@ -531,66 +537,63 @@
     `).join('');
   }
 
-  function deleteInquiry(id) {
-    let inquiries = JSON.parse(localStorage.getItem('hoz_inquiries') || '[]');
-    inquiries = inquiries.filter(i => i.id !== id);
-    localStorage.setItem('hoz_inquiries', JSON.stringify(inquiries));
+  async function deleteInquiry(id) {
+    await fetch(`${API}/api/admin/inquiries`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
     renderInquiries();
   }
 
-  // ─── PROJECTS ───
-  function toggleProjectForm() {
-    const form = document.getElementById('projectForm');
+  // ─── USERS ───
+  async function renderUsers() {
+    const list = document.getElementById('usersList');
+    const res = await fetch(`${API}/api/admin/users`, {
+      headers: { 'Authorization': `Bearer ${getToken()}` }
+    });
+    const users = await res.json();
+    if (!users.length) {
+      list.innerHTML = '<div class="empty-state">No users.</div>';
+      return;
+    }
+    list.innerHTML = users.map(u => `
+      <div class="inquiry-card">
+        <div class="inquiry-header">
+          <span class="inquiry-name">${esc(u.email)}</span>
+          <span class="inquiry-delete" onclick="deleteUser('${esc(u.email)}')">Delete</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleUserForm() {
+    const form = document.getElementById('userForm');
     form.style.display = form.style.display === 'block' ? 'none' : 'block';
   }
 
-  function saveProject() {
-    const project = {
-      id: Date.now(),
-      name: document.getElementById('projName').value,
-      author: document.getElementById('projAuthor').value,
-      desc: document.getElementById('projDesc').value,
-      link: document.getElementById('projLink').value,
-      date: new Date().toISOString()
-    };
-
-    if (!project.name) return;
-
-    const projects = JSON.parse(localStorage.getItem('hoz_projects') || '[]');
-    projects.push(project);
-    localStorage.setItem('hoz_projects', JSON.stringify(projects));
-
-    // Clear form
-    ['projName','projAuthor','projDesc','projLink'].forEach(id => document.getElementById(id).value = '');
-    toggleProjectForm();
-    renderProjects();
+  async function addUser() {
+    const email = document.getElementById('newUserEmail').value;
+    const password = document.getElementById('newUserPassword').value;
+    if (!email || !password) return;
+    await fetch(`${API}/api/admin/users`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+    toggleUserForm();
+    renderUsers();
   }
 
-  function deleteProject(id) {
-    let projects = JSON.parse(localStorage.getItem('hoz_projects') || '[]');
-    projects = projects.filter(p => p.id !== id);
-    localStorage.setItem('hoz_projects', JSON.stringify(projects));
-    renderProjects();
-  }
-
-  function renderProjects() {
-    const grid = document.getElementById('projectsList');
-    const projects = JSON.parse(localStorage.getItem('hoz_projects') || '[]').reverse();
-
-    if (projects.length === 0) {
-      grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No projects yet. Add one above.</div>';
-      return;
-    }
-
-    grid.innerHTML = projects.map(p => `
-      <div class="project-card">
-        <div class="project-name">${esc(p.name)}</div>
-        <div class="project-author">${esc(p.author)}</div>
-        <div class="project-desc">${esc(p.desc)}</div>
-        ${p.link ? `<a class="project-link" href="${esc(p.link)}" target="_blank">View Project →</a>` : ''}
-        <span class="project-delete" onclick="deleteProject(${p.id})">Delete</span>
-      </div>
-    `).join('');
+  async function deleteUser(email) {
+    await fetch(`${API}/api/admin/users`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    renderUsers();
   }
 
   // ─── UTILS ───

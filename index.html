@@ -524,20 +524,20 @@
   }, 4700);
 
   // Form submission
-  document.getElementById('inquiryForm').addEventListener('submit', function(e) {
+  const API = 'https://hoz-api.grahamzastre.workers.dev';
+  document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
-    const inquiry = {
-      id: Date.now(),
-      name: formData.get('name'),
-      email: formData.get('email'),
-      subject: formData.get('subject'),
-      message: formData.get('message'),
-      date: new Date().toISOString()
-    };
-    const inquiries = JSON.parse(localStorage.getItem('hoz_inquiries') || '[]');
-    inquiries.push(inquiry);
-    localStorage.setItem('hoz_inquiries', JSON.stringify(inquiries));
+    await fetch(`${API}/api/inquiry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message')
+      })
+    });
     this.style.visibility = 'hidden';
     document.getElementById('formSuccess').style.display = 'block';
   });
