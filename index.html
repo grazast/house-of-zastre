@@ -45,25 +45,12 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    animation: loaderFade 3s ease-in-out forwards;
-  }
-
-  #loader img {
-    width: 120px;
-    height: 120px;
-    animation: logoFade 3s ease-in-out forwards;
-  }
-
-  @keyframes logoFade {
-    0% { opacity: 0; transform: scale(0.9); }
-    30% { opacity: 1; transform: scale(1); }
-    70% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1.02); }
+    animation: loaderFade 4.5s ease-in-out forwards;
   }
 
   @keyframes loaderFade {
     0% { opacity: 1; }
-    85% { opacity: 1; }
+    75% { opacity: 1; }
     100% { opacity: 0; pointer-events: none; }
   }
 
@@ -76,7 +63,7 @@
   #hero {
     display: flex;
     opacity: 0;
-    animation: pageReveal 1s ease-out 3s forwards;
+    animation: pageReveal 1s ease-out 4s forwards;
   }
 
   @keyframes pageReveal {
@@ -563,7 +550,7 @@
   // Remove loader after animation
   setTimeout(() => {
     document.getElementById('loader').style.display = 'none';
-  }, 3200);
+  }, 4700);
 
   // Form submission
   document.getElementById('inquiryForm').addEventListener('submit', function(e) {
