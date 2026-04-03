@@ -104,21 +104,6 @@
     text-transform: uppercase;
   }
 
-  /* Diagonal accent line overlay on video */
-  .hero-left::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(
-      135deg,
-      transparent 48%,
-      rgba(219, 194, 120, 0.12) 48%,
-      rgba(219, 194, 120, 0.12) 52%,
-      transparent 52%
-    );
-    pointer-events: none;
-  }
 
   .hero-right {
     width: 50%;
@@ -410,7 +395,6 @@
     <h1>House of<br><span>Zastre.</span></h1>
     <p class="tagline">West coast family office</p>
     <div class="scroll-indicator" onclick="document.getElementById('about').scrollIntoView()">
-      <span>Explore</span>
       <div class="arrow"></div>
     </div>
   </div>
@@ -452,6 +436,12 @@
 </footer>
 
 <script>
+  // Slow video to 30-second loop
+  const heroVideo = document.querySelector('.hero-left video');
+  heroVideo.addEventListener('loadedmetadata', () => {
+    heroVideo.playbackRate = heroVideo.duration / 30;
+  });
+
   // Remove loader after animation
   setTimeout(() => {
     document.getElementById('loader').style.display = 'none';
