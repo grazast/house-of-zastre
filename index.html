@@ -86,10 +86,11 @@
 
   .hero-left {
     width: 50%;
-    height: 100%;
+    height: 100vh;
     position: relative;
     overflow: hidden;
     background: var(--primary);
+    flex-shrink: 0;
   }
 
   .hero-left video {
@@ -98,6 +99,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: right center;
     opacity: 0.85;
   }
 
@@ -351,9 +353,7 @@
 
   /* ─── RESPONSIVE ─── */
   @media (max-width: 768px) {
-    #hero { flex-direction: column; }
-    .hero-left { width: 100%; height: 50%; }
-    .hero-right { width: 100%; height: 50%; padding: 48px 32px; }
+    .hero-right { padding: 48px 32px; }
     .hero-right h1 { font-size: 36px; }
     #about { padding: 80px 32px; }
     #about h2 { font-size: 32px; }
@@ -389,7 +389,7 @@
   <h2 class="fade-in">Built on prairie roots.<br>Grounded on the <em>west coast</em>.</h2>
   <div class="divider fade-in"></div>
   <p class="about-body fade-in">
-    HoZ is based out of Vancouver, Canada. Building, investing, and creating across real estate, capital advisory, and technology.
+    HoZ is based out of Vancouver, Canada.<br>Building, investing, and creating across real estate, capital advisory, and technology.
   </p>
 </section>
 

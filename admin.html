@@ -416,6 +416,7 @@
 
 <!-- LOGIN WALL -->
 <div id="loginWall">
+  <a href="/" style="position:absolute;top:32px;left:40px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#6b6b6b;text-decoration:none;transition:color 0.3s;" onmouseover="this.style.color='#dbc278'" onmouseout="this.style.color='#6b6b6b'">← Site</a>
   <p class="login-mark">House of Zastre — Admin</p>
   <div class="login-box">
     <input type="password" id="passwordInput" placeholder="Password" onkeydown="if(event.key==='Enter')attemptLogin()">
@@ -434,7 +435,10 @@
         <div class="nav-tab" onclick="switchTab('projects')">Projects</div>
       </div>
     </div>
-    <div class="nav-logout" onclick="logout()">Logout</div>
+    <div style="display:flex;gap:24px;align-items:center;">
+      <a href="/" class="nav-logout" style="text-decoration:none;">← Site</a>
+      <div class="nav-logout" onclick="logout()">Logout</div>
+    </div>
   </nav>
 
   <!-- INQUIRIES TAB -->
