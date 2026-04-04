@@ -161,6 +161,23 @@
     justify-content: center;
     flex-direction: column;
     padding: 120px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #about video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(0.2) brightness(0.4);
+    opacity: 0.6;
+    z-index: 0;
+  }
+
+  #about > * {
+    position: relative;
+    z-index: 1;
   }
 
   .about-label {
@@ -174,7 +191,7 @@
   #about h2 {
     font-size: 48px;
     font-weight: 300;
-    color: var(--primary);
+    color: #f8f7f4;
     text-align: center;
     line-height: 1.2;
     max-width: 700px;
@@ -198,7 +215,7 @@
     text-align: center;
     font-size: 16px;
     line-height: 1.8;
-    color: var(--secondary);
+    color: #f8f7f4;
     font-weight: 300;
   }
 
@@ -278,8 +295,11 @@
 
   .form-success {
     display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 40px;
     font-size: 15px;
     color: var(--secondary);
     font-weight: 300;
@@ -371,7 +391,10 @@
     .hero-right h1 { font-size: 36px; }
     #about { padding: 80px 32px; }
     #about h2 { font-size: 32px; }
-    #inquiry { padding: 80px 32px; }
+    #inquiry { padding: 48px 32px 200px; }
+    .inquiry-form { gap: 10px; }
+    .inquiry-form input, .inquiry-form textarea { padding: 10px 0; font-size: 13px; }
+    .inquiry-form button { margin-top: 8px; padding: 12px 32px; }
     footer { padding: 32px; flex-direction: column; gap: 16px; }
   }
 </style>
@@ -384,18 +407,26 @@
 <div id="loader">
   <svg viewBox="0 0 200 200" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
     <style>
-      @keyframes draw-border { to { stroke-dashoffset: 0; } }
-      @keyframes draw-line   { to { stroke-dashoffset: 0; } }
+      @keyframes draw-line { to { stroke-dashoffset: 0; } }
+      @keyframes wipe-x    { to { transform: scaleX(0); } }
+      @keyframes wipe-y    { to { transform: scaleY(0); } }
 
-      #z-border  { stroke-dasharray: 720; stroke-dashoffset: 720; animation: draw-border 0.9s cubic-bezier(0.42,0,0.58,1) 0.1s forwards; }
-      #z-top     { stroke-dasharray: 108; stroke-dashoffset: 108; animation: draw-line 0.4s cubic-bezier(0.42,0,0.58,1) 1.0s forwards; }
-      #z-diag    { stroke-dasharray: 148; stroke-dashoffset: 148; animation: draw-line 0.6s cubic-bezier(0.42,0,0.58,1) 1.4s forwards; }
-      #z-bottom  { stroke-dasharray: 108; stroke-dashoffset: 108; animation: draw-line 0.4s cubic-bezier(0.42,0,0.58,1) 2.0s forwards; }
-      #z-cross   { stroke-dasharray: 51;  stroke-dashoffset: 51;  animation: draw-line 0.25s linear 2.4s forwards; }
+      #cover-top    { transform-origin: 194px 10px;  animation: wipe-x 0.32s ease-in 0.10s forwards; }
+      #cover-right  { transform-origin: 190px 186px; animation: wipe-y 0.32s ease-in 0.38s forwards; }
+      #cover-bottom { transform-origin: 6px   190px; animation: wipe-x 0.32s ease-in 0.66s forwards; }
+      #cover-left   { transform-origin: 10px  14px;  animation: wipe-y 0.32s ease-in 0.94s forwards; }
+      #z-top     { stroke-dasharray: 108; stroke-dashoffset: 108; animation: draw-line 0.4s cubic-bezier(0.42,0,0.58,1) 1.3s forwards; }
+      #z-diag    { stroke-dasharray: 148; stroke-dashoffset: 148; animation: draw-line 0.6s cubic-bezier(0.42,0,0.58,1) 1.7s forwards; }
+      #z-bottom  { stroke-dasharray: 108; stroke-dashoffset: 108; animation: draw-line 0.4s cubic-bezier(0.42,0,0.58,1) 2.3s forwards; }
+      #z-cross   { stroke-dasharray: 51;  stroke-dashoffset: 51;  animation: draw-line 0.25s linear 2.7s forwards; }
     </style>
 
     <rect width="200" height="200" fill="#404040"/>
-    <rect id="z-border" x="10" y="10" width="180" height="180" fill="none" stroke="#f8f7f4" stroke-width="7"/>
+    <path d="M10,10 L190,10 L190,190 L10,190 Z" fill="none" stroke="#f8f7f4" stroke-width="7"/>
+    <rect id="cover-top"    x="6"   y="6"   width="188" height="8"   fill="#404040"/>
+    <rect id="cover-right"  x="186" y="14"  width="8"   height="172" fill="#404040"/>
+    <rect id="cover-bottom" x="6"   y="186" width="188" height="8"   fill="#404040"/>
+    <rect id="cover-left"   x="6"   y="14"  width="8"   height="172" fill="#404040"/>
     <line id="z-top"    x1="46"   y1="57"  x2="154"   y2="57"  stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"/>
     <line id="z-diag"   x1="154"  y1="61"  x2="46"    y2="141" stroke="#f8f7f4" stroke-width="15" stroke-linecap="round"/>
     <line id="z-bottom" x1="46"   y1="145" x2="154"   y2="145" stroke="#f8f7f4" stroke-width="15" stroke-linecap="square"/>
@@ -416,8 +447,9 @@
 
 <!-- ABOUT -->
 <section id="about">
+  <video autoplay muted loop playsinline src="about-video.mp4"></video>
   <p class="about-label fade-in">About</p>
-  <h2 class="fade-in">Built on prairie roots.<br>Grounded on the <em>west coast</em>.</h2>
+  <h2 class="fade-in">Built on prairie roots.<br>Grounded on the <em>West Coast</em>.</h2>
   <div class="divider fade-in"></div>
   <p class="about-body fade-in">
     HoZ is based out of Vancouver, Canada.
@@ -427,15 +459,17 @@
 <!-- INQUIRY -->
 <section id="inquiry">
   <h3 class="fade-in">Submit an inquiry</h3>
-  <form class="inquiry-form" id="inquiryForm">
-    <input type="text" name="name" placeholder="Name" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="text" name="subject" placeholder="Subject">
-    <textarea name="message" rows="4" placeholder="Message" required></textarea>
-    <button type="submit">Send Inquiry</button>
-  </form>
-  <div class="form-success" id="formSuccess">
-    Thank you. We'll be in touch.
+  <div style="position:relative; width:100%; max-width:480px;">
+    <form class="inquiry-form" id="inquiryForm">
+      <input type="text" name="name" placeholder="Name" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="text" name="subject" placeholder="Subject">
+      <textarea name="message" rows="4" placeholder="Message" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+    <div class="form-success" id="formSuccess">
+      Thank you. We'll be in touch.
+    </div>
   </div>
   <div class="footer-strip">
     <video autoplay muted loop playsinline src="footer-video.mp4"></video>
@@ -539,7 +573,7 @@
       })
     });
     this.style.visibility = 'hidden';
-    document.getElementById('formSuccess').style.display = 'block';
+    document.getElementById('formSuccess').style.display = 'flex';
   });
 </script>
 </body>
