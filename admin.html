@@ -404,6 +404,78 @@
     color: var(--primary);
   }
 
+  /* ─── APP LAUNCHER OVERLAY ─── */
+  #appOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--primary);
+    flex-direction: column;
+  }
+
+  #appOverlay.open {
+    display: flex;
+  }
+
+  .app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 48px;
+    background: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .app-bar-title {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .app-bar-close {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    cursor: pointer;
+    transition: opacity 0.2s;
+    border: none;
+    background: transparent;
+    font-family: var(--font);
+    padding: 0;
+  }
+
+  .app-bar-close:hover { opacity: 0.7; }
+
+  #appFrame {
+    flex: 1;
+    border: none;
+    width: 100%;
+  }
+
+  .project-launch {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 10px 24px;
+    border: 1px solid var(--primary);
+    background: transparent;
+    font-family: var(--font);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .project-launch:hover {
+    background: var(--primary);
+    color: var(--bg);
+  }
+
   /* ─── RESPONSIVE ─── */
   @media (max-width: 768px) {
     .admin-nav { padding: 16px 24px; flex-wrap: wrap; gap: 12px; }
@@ -413,6 +485,15 @@
 </style>
 </head>
 <body>
+
+<!-- APP LAUNCHER OVERLAY -->
+<div id="appOverlay">
+  <div class="app-bar">
+    <span class="app-bar-title" id="appBarTitle"></span>
+    <button class="app-bar-close" onclick="closeApp()">✕ Close</button>
+  </div>
+  <iframe id="appFrame" src="" allowfullscreen></iframe>
+</div>
 
 <!-- LOGIN WALL -->
 <div id="loginWall">
@@ -433,6 +514,7 @@
       <a href="/" class="nav-brand">House of Zastre</a>
       <div class="nav-tabs">
         <div class="nav-tab active" onclick="switchTab('inquiries')">Inquiries</div>
+        <div class="nav-tab" onclick="switchTab('projects')">Projects</div>
         <div class="nav-tab" onclick="switchTab('users')">Users</div>
       </div>
     </div>
@@ -447,6 +529,24 @@
     <h2>Inquiries</h2>
     <p class="section-desc">Submissions from the public site.</p>
     <div id="inquiriesList"></div>
+  </div>
+
+  <!-- PROJECTS TAB -->
+  <div class="admin-content" id="tab-projects" style="display:none;">
+    <h2>Projects</h2>
+    <p class="section-desc">Manage featured projects shown on the site.</p>
+    <button class="add-project-btn" onclick="toggleProjectForm()">+ Add Project</button>
+    <div class="project-form" id="projectForm">
+      <input type="text" id="newProjectName" placeholder="Project name">
+      <input type="text" id="newProjectAuthor" placeholder="Author / collaborator">
+      <textarea id="newProjectDesc" rows="3" placeholder="Description"></textarea>
+      <input type="url" id="newProjectLink" placeholder="URL (optional)">
+      <div class="project-form-actions">
+        <button onclick="addProject()">Save</button>
+        <button class="cancel-btn" onclick="toggleProjectForm()">Cancel</button>
+      </div>
+    </div>
+    <div class="projects-grid" id="projectsList"></div>
   </div>
 
   <!-- USERS TAB -->
@@ -507,23 +607,30 @@
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
     document.getElementById('tab-inquiries').style.display = tab === 'inquiries' ? 'block' : 'none';
+    document.getElementById('tab-projects').style.display = tab === 'projects' ? 'block' : 'none';
     document.getElementById('tab-users').style.display = tab === 'users' ? 'block' : 'none';
     if (tab === 'users') renderUsers();
+    if (tab === 'projects') renderProjects();
   }
 
   // ─── INQUIRIES ───
   async function renderInquiries() {
     const list = document.getElementById('inquiriesList');
     list.innerHTML = '<div class="empty-state">Loading...</div>';
-    const res = await fetch(`${API}/api/admin/inquiries`, {
-      headers: { 'Authorization': `Bearer ${getToken()}` }
-    });
-    const inquiries = await res.json();
-    if (!inquiries.length) {
-      list.innerHTML = '<div class="empty-state">No inquiries yet.</div>';
-      return;
-    }
-    list.innerHTML = inquiries.map(inq => `
+    try {
+      const res = await fetch(`${API}/api/admin/inquiries`, {
+        headers: { 'Authorization': `Bearer ${getToken()}` }
+      });
+      if (!res.ok) {
+        list.innerHTML = '<div class="empty-state">Could not load inquiries — try logging out and back in.</div>';
+        return;
+      }
+      const inquiries = await res.json();
+      if (!Array.isArray(inquiries) || !inquiries.length) {
+        list.innerHTML = '<div class="empty-state">No inquiries yet.</div>';
+        return;
+      }
+      list.innerHTML = inquiries.map(inq => `
       <div class="inquiry-card">
         <div class="inquiry-header">
           <span class="inquiry-name">${esc(inq.name)}</span>
@@ -535,6 +642,9 @@
         <span class="inquiry-delete" onclick="deleteInquiry(${inq.id})">Delete</span>
       </div>
     `).join('');
+    } catch (err) {
+      list.innerHTML = '<div class="empty-state">Error loading inquiries.</div>';
+    }
   }
 
   async function deleteInquiry(id) {
@@ -595,6 +705,89 @@
     });
     renderUsers();
   }
+
+  // ─── PROJECTS ───
+  async function renderProjects() {
+    const grid = document.getElementById('projectsList');
+    grid.innerHTML = '<div class="empty-state">Loading...</div>';
+    try {
+      const res = await fetch(`${API}/api/admin/projects`, {
+        headers: { 'Authorization': `Bearer ${getToken()}` }
+      });
+      if (!res.ok) {
+        grid.innerHTML = '<div class="empty-state">Could not load projects.</div>';
+        return;
+      }
+      const projects = await res.json();
+      if (!Array.isArray(projects) || !projects.length) {
+        grid.innerHTML = '<div class="empty-state">No projects yet.</div>';
+        return;
+      }
+      grid.innerHTML = projects.map(p => `
+        <div class="project-card">
+          <div class="project-name">${esc(p.name)}</div>
+          ${p.author ? `<div class="project-author">${esc(p.author)}</div>` : ''}
+          ${p.description ? `<div class="project-desc">${esc(p.description)}</div>` : ''}
+          ${p.url && p.url !== 'n/a' ? `<button class="project-launch" onclick="launchApp('${esc(p.url)}', '${esc(p.name)}')">Open App</button>` : ''}
+          <span class="project-delete" onclick="deleteProject(${p.id})">Delete</span>
+        </div>
+      `).join('');
+    } catch (err) {
+      grid.innerHTML = '<div class="empty-state">Error loading projects.</div>';
+    }
+  }
+
+  function toggleProjectForm() {
+    const form = document.getElementById('projectForm');
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+  }
+
+  async function addProject() {
+    const name = document.getElementById('newProjectName').value;
+    const author = document.getElementById('newProjectAuthor').value;
+    const description = document.getElementById('newProjectDesc').value;
+    const url = document.getElementById('newProjectLink').value;
+    if (!name) return;
+    await fetch(`${API}/api/admin/projects`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, author, description, url })
+    });
+    document.getElementById('newProjectName').value = '';
+    document.getElementById('newProjectAuthor').value = '';
+    document.getElementById('newProjectDesc').value = '';
+    document.getElementById('newProjectLink').value = '';
+    toggleProjectForm();
+    renderProjects();
+  }
+
+  async function deleteProject(id) {
+    await fetch(`${API}/api/admin/projects`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    renderProjects();
+  }
+
+  // ─── APP LAUNCHER ───
+  function launchApp(url, name) {
+    document.getElementById('appBarTitle').textContent = name;
+    document.getElementById('appFrame').src = url;
+    document.getElementById('appOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeApp() {
+    document.getElementById('appOverlay').classList.remove('open');
+    document.getElementById('appFrame').src = '';
+    document.body.style.overflow = '';
+  }
+
+  // ESC key closes overlay
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeApp();
+  });
 
   // ─── UTILS ───
   function esc(str) {
